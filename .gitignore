@@ -1,0 +1,13 @@
+# Gradle / Build
+.gradle/
+build/
+local.properties
+captures/
+.cxx/
+
+# IDE
+.idea/
+*.iml
+*.ipr
+*.iws
+.DS_Store

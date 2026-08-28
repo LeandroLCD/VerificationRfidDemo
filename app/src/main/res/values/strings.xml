@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name">Verification RFID Demo</string>
+    <string name="hint_select_type">Selecciona el tipo de búsqueda</string>
+    <string name="hint_value">Ingresa el valor</string>
+    <string name="btn_launch">Iniciar verificación</string>
+    <string name="result_title">Resultado</string>
+    <string name="empty_result">Aún no se ha ejecutado ninguna verificación.</string>
+    <string name="error_invalid_input">Debes seleccionar un tipo y capturar un valor válido.</string>
+    <string name="status_ok">OK · RESULT_OK</string>
+    <string name="status_canceled">Cancelado · RESULT_CANCELED</string>
+    <string name="hint_precheck_pk">Precheck pk</string>
+    <string name="hint_precheck_vehicle_pk">Vehicle pk</string>
+    <string name="hint_precheck_date_time">Date time (ms)</string>
+    <string name="hint_precheck_sync">Sincronizado</string>
+    <string name="hint_error_message">Mensaje de error</string>
+</resources>
