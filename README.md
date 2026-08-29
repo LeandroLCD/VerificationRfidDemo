@@ -16,13 +16,8 @@ y mostrar los extras devueltos por la activity externa.
 - Android Studio Ladybug+ / Koala
 - JDK 17
 - `compileSdk` 36, `minSdk` 26
-- La app **HiveTire** instalada en el mismo dispositivo (cualquier flavor):
-  - `app.hivetire.android.hivetireapp` (release)
-  - `app.hivetire.android.hivetireapp.debug` (debug, valor por defecto en la demo)
-  - `app.hivetire.android.hivetireapp.demo` (demo)
+- La app **HiveTire** instalada en el mismo dispositivo (cualquier flavor)
 
-> El bloque `<queries>` del `AndroidManifest.xml` declara los paquetes de
-> HiveTire para que la demo pueda resolver el `ComponentName` en Android 11+.
 
 ---
 
@@ -49,14 +44,12 @@ y mostrar los extras devueltos por la activity externa.
 
 ### 3.1 Intent a enviar
 
-Lanzar con `ComponentName` apuntando al componente exacto:
+Lanzar con el action `app.hivetire.android.intent.PRECHECK_VEHICLE` apuntando al componente exacto:
 
 ```kotlin
 val intent = Intent().apply {
-    component = ComponentName(
-        "app.hivetire.android.hivetireapp.debug",
-        "app.hivetire.android.hivetireapp.ui.handheld.externalPrecheck.ExternalPrecheckActivity"
-    )
+    action = "app.hivetire.android.intent.PRECHECK_VEHICLE"
+    addCategory(Intent.CATEGORY_DEFAULT)
 
     // Elige UNO de los siguientes extras:
     putExtra("app.hivetire.android.extra.VEHICLE_ID_PK", 309)
@@ -79,6 +72,10 @@ val launcher = rememberLauncherForActivityResult(
 
 launcher.launch(intent)
 ```
+### Recomendaciones
+De los 3 extras disponibles se recomienda usar el `app.hivetire.android.extra.VEHICLE_ID_PK`, ya que es el más
+directo y fácil de usar. Los dos siguientes requieren comprobaciones con el backend, por lo que conllevan una consulta
+adicional al servidor.
 
 ### 3.2 Extras disponibles
 
@@ -110,29 +107,6 @@ finaliza con `RESULT_CANCELED` y `EXTRA_ERROR_MESSAGE = "Missing vehicle identif
 | `app.hivetire.android.extra.PRECHECK_SYNC` | `Boolean` | OK |
 | `app.hivetire.android.extra.ERROR_MESSAGE` | `String` | CANCELED |
 
-### 3.4 Flujo interno en HiveTire
-
-1. `ExternalPrecheckActivity` recibe el `Intent` y construye un
-   `ExternalPrecheckInput` (`Pk` / `Licence` / `Identification`).
-2. Estado inicial: `PrecheckVerificationState.SearchVehicle`.
-3. Si la entrada es `Licence` o `Identification`, se resuelve el `pk` mediante
-   `ISearchVehicleUseCase` (`searchBy = "licence"` o `"identification"`).
-   Si la búsqueda falla, la activity termina con `RESULT_CANCELED`.
-4. Una vez resuelto el `pk`, se llama a
-   `IGetVehicleDataUseCase.getVehicleData(pk)` que sincroniza el detalle y
-   los neumáticos asignados desde el backend.
-5. Se abre la verificación (`IVerificationRfidUseCase.openVerification`) y se
-   reutiliza la pantalla original `PrecheckScreen` para que el operador
-   escanee RFID o cancele.
-6. Al cerrar la verificación (`closedVerification`) se entrega el
-   `DataPrechecked` resultante por `onSuccess(...)` → `RESULT_OK`.
-   Cualquier excepción se entrega por `onError(throwable)` →
-   `RESULT_CANCELED` con el mensaje.
-
-### 3.5 Permisos
-
-No se requieren permisos adicionales. La activity externa se beneficia de los
-permisos ya concedidos a HiveTire (red, bluetooth, etc.).
 
 ---
 
@@ -169,7 +143,3 @@ Cualquiera de los tres debería abrir la misma inspección y devolver el mismo
 `PRECHECK_PK`/`PRECHECK_VEHICLE_PK`.
 
 ---
-
-## 6. Licencia
-
-MIT.

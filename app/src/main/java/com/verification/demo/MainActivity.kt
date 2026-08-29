@@ -1,10 +1,13 @@
 package com.verification.demo
 
 import android.app.Activity
+import android.content.ActivityNotFoundException
 import android.content.ComponentName
 import android.content.Intent
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -18,7 +21,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -60,9 +65,9 @@ class MainActivity : ComponentActivity() {
 }
 
 private enum class SearchType(val display: String, val extraKey: String) {
-    ID("ID (pk)", "app.hivetire.android.extra.VEHICLE_ID_PK"),
-    LICENCE("Licence plate", "app.hivetire.android.extra.VEHICLE_LICENCE"),
-    IDENTIFICATION("Identification", "app.hivetire.android.extra.VEHICLE_IDENTIFICATION");
+    ID("ID (pk)", "app.hivetire.android.extra.VEHICLE_ID"),
+    LICENCE("Licence", "app.hivetire.android.extra.VEHICLE_LICENCE"),
+    IDENTIFICATION("Identif.", "app.hivetire.android.extra.VEHICLE_IDENTIFICATION");
 
     companion object {
         fun fromDisplay(value: String?): SearchType =
@@ -70,9 +75,7 @@ private enum class SearchType(val display: String, val extraKey: String) {
     }
 }
 
-private const val DEFAULT_PACKAGE = "app.hivetire.android.hivetireapp.debug"
-private const val EXTERNAL_ACTIVITY_CLASS =
-    "app.hivetire.android.hivetireapp.ui.handheld.externalPrecheck.ExternalPrecheckActivity"
+
 
 private const val EXTRA_PRECHECK_PK = "app.hivetire.android.extra.PRECHECK_PK"
 private const val EXTRA_PRECHECK_VEHICLE_PK = "app.hivetire.android.extra.PRECHECK_VEHICLE_PK"
@@ -85,7 +88,6 @@ private const val EXTRA_ERROR_MESSAGE = "app.hivetire.android.extra.ERROR_MESSAG
 private fun DemoScreen() {
     var selectedType by rememberSaveable { mutableStateOf(SearchType.ID.display) }
     var value by rememberSaveable { mutableStateOf("309") }
-    var targetPackage by rememberSaveable { mutableStateOf(DEFAULT_PACKAGE) }
     var lastResult by remember { mutableStateOf<PrecheckResult?>(null) }
 
     val launcher = rememberLauncherForActivityResult(
@@ -106,7 +108,7 @@ private fun DemoScreen() {
                 fontWeight = FontWeight.SemiBold
             )
             Text(
-                text = "Lanza ExternalPrecheckActivity desde la app de HiveTire y observa la respuesta.",
+                text = "Lanza PrecheckActivity desde la app de HiveTire y observa la respuesta.",
                 style = MaterialTheme.typography.bodyMedium
             )
 
@@ -119,86 +121,81 @@ private fun DemoScreen() {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(16.dp),
+                        .padding(8.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     Text(
-                        text = "1 · Configura la verificación",
+                        text = "Configura la verificación",
                         style = MaterialTheme.typography.titleMedium
                     )
 
                     var dropdownExpanded by remember { mutableStateOf(false) }
                     val currentType = SearchType.fromDisplay(selectedType)
-
-                    ExposedDropdownMenuBox(
-                        expanded = dropdownExpanded,
-                        onExpandedChange = { dropdownExpanded = it }
-                    ) {
-                        OutlinedTextField(
-                            value = currentType.display,
-                            onValueChange = {},
-                            readOnly = true,
-                            label = { Text(stringResource(R.string.hint_select_type)) },
-                            trailingIcon = {
-                                ExposedDropdownMenuDefaults.TrailingIcon(expanded = dropdownExpanded)
-                            },
-                            modifier = Modifier
-                                .menuAnchor()
-                                .fillMaxWidth()
-                        )
-                        ExposedDropdownMenu(
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween){
+                        ExposedDropdownMenuBox(
+                            modifier = Modifier.weight(0.45f),
                             expanded = dropdownExpanded,
-                            onDismissRequest = { dropdownExpanded = false }
+                            onExpandedChange = { dropdownExpanded = it }
                         ) {
-                            SearchType.entries.forEach { type ->
-                                DropdownMenuItem(
-                                    text = { Text(type.display) },
-                                    onClick = {
-                                        selectedType = type.display
-                                        dropdownExpanded = false
-                                    }
-                                )
+                            OutlinedTextField(
+                                value = currentType.display,
+                                onValueChange = {},
+                                readOnly = true,
+                                label = { Text(stringResource(R.string.hint_select_type)) },
+                                trailingIcon = {
+                                    ExposedDropdownMenuDefaults.TrailingIcon(expanded = dropdownExpanded)
+                                },
+                                modifier = Modifier
+                                    .menuAnchor()
+                                    .fillMaxWidth()
+                            )
+                            ExposedDropdownMenu(
+                                expanded = dropdownExpanded,
+                                onDismissRequest = { dropdownExpanded = false }
+                            ) {
+                                SearchType.entries.forEach { type ->
+                                    DropdownMenuItem(
+                                        text = { Text(type.display) },
+                                        onClick = {
+                                            selectedType = type.display
+                                            dropdownExpanded = false
+                                        }
+                                    )
+                                }
                             }
                         }
+
+                        OutlinedTextField(
+                            value = value,
+                            onValueChange = { value = it },
+                            label = { Text(stringResource(R.string.hint_value)) },
+                            singleLine = true,
+                            modifier = Modifier.weight(0.45f),
+                        )
                     }
 
-                    OutlinedTextField(
-                        value = value,
-                        onValueChange = { value = it },
-                        label = { Text(stringResource(R.string.hint_value)) },
-                        singleLine = true,
-                        modifier = Modifier.fillMaxWidth()
-                    )
 
-                    OutlinedTextField(
-                        value = targetPackage,
-                        onValueChange = { targetPackage = it },
-                        label = { Text("HiveTire package") },
-                        supportingText = {
-                            Text(
-                                text = "Usa app.hivetire.android.hivetireapp.debug, .demo o el base.",
-                                style = MaterialTheme.typography.bodySmall
-                            )
-                        },
-                        singleLine = true,
-                        modifier = Modifier.fillMaxWidth()
-                    )
+                    val activity = LocalActivity.current
 
-                    val canLaunch = value.isNotBlank() && targetPackage.isNotBlank()
                     Button(
                         onClick = {
                             val type = SearchType.fromDisplay(selectedType)
                             val intent = Intent().apply {
-                                component = ComponentName(targetPackage, EXTERNAL_ACTIVITY_CLASS)
+                                action = "app.hivetire.android.intent.PRECHECK_VEHICLE"
+                                addCategory(Intent.CATEGORY_DEFAULT)
                                 when (type) {
                                     SearchType.ID -> putExtra(type.extraKey, value.toIntOrNull() ?: 0)
                                     SearchType.LICENCE -> putExtra(type.extraKey, value)
                                     SearchType.IDENTIFICATION -> putExtra(type.extraKey, value)
                                 }
                             }
-                            launcher.launch(intent)
+                            try {
+                                launcher.launch(intent)
+                            }catch (e: ActivityNotFoundException) {
+                                Toast.makeText(activity, "No se encontró HiveTire", Toast.LENGTH_SHORT).show()
+                            }
                         },
-                        enabled = canLaunch,
+                        enabled = value.isNotBlank(),
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Text(stringResource(R.string.btn_launch))
@@ -215,7 +212,8 @@ private fun DemoScreen() {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(16.dp),
+                        .verticalScroll(rememberScrollState())
+                        .padding(8.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Row(
@@ -248,14 +246,17 @@ private fun DemoScreen() {
                             style = MaterialTheme.typography.bodyMedium
                         )
                     } else {
-                        ResultRow(label = stringResource(R.string.hint_precheck_pk), value = result.precheckPk)
-                        ResultRow(label = stringResource(R.string.hint_precheck_vehicle_pk), value = result.vehiclePk)
-                        ResultRow(label = stringResource(R.string.hint_precheck_date_time), value = result.dateTime)
-                        ResultRow(label = stringResource(R.string.hint_precheck_sync), value = result.isSync)
-                        ResultRow(
-                            label = stringResource(R.string.hint_error_message),
-                            value = result.errorMessage
-                        )
+                        if(result.errorMessage.isNullOrBlank()){
+                            ResultRow(label = stringResource(R.string.hint_precheck_pk), value = result.precheckPk)
+                            ResultRow(label = stringResource(R.string.hint_precheck_vehicle_pk), value = result.vehiclePk)
+                            ResultRow(label = stringResource(R.string.hint_precheck_date_time), value = result.dateTime)
+                            ResultRow(label = stringResource(R.string.hint_precheck_sync), value = result.isSync)
+                        }else{
+                            ResultRow(
+                                label = stringResource(R.string.hint_error_message),
+                                value = result.errorMessage
+                            )
+                        }
                     }
                 }
             }
@@ -270,10 +271,10 @@ private fun ResultRow(label: String, value: Any?) {
         color = MaterialTheme.colorScheme.surfaceVariant,
         shape = RoundedCornerShape(8.dp)
     ) {
-        Column(modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)) {
+        Row(modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)) {
             Text(
-                text = label,
-                style = MaterialTheme.typography.labelMedium,
+                text = "$label:",
+                style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.Medium
             )
             Spacer(modifier = Modifier.height(2.dp))

@@ -1,11 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <queries>
-        <package android:name="app.hivetire.android.hivetireapp" />
-        <package android:name="app.hivetire.android.hivetireapp.debug" />
-    </queries>
-
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"

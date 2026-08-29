@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">Verification RFID Demo</string>
-    <string name="hint_select_type">Selecciona el tipo de búsqueda</string>
+    <string name="hint_select_type">Seleccione</string>
     <string name="hint_value">Ingresa el valor</string>
     <string name="btn_launch">Iniciar verificación</string>
     <string name="result_title">Resultado</string>
