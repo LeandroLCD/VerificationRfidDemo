@@ -46,7 +46,7 @@ el JSON devuelto por la activity externa para cada vehículo.
 
 ## Demo
 
-<video src="videos/precheck%20externo.mp4" controls width="100%"></video>
+<video src="videos/precheck%20externo.mp4" controls width="180"></video>
 
 *Video de la app disparando `ExternalPrecheckActivity` y mostrando la respuesta
 JSON del truck y del trailer.*
