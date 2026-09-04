@@ -40,7 +40,19 @@ el JSON devuelto por la activity externa para cada vehículo.
    - **RESULT_OK** con extras `TRUCK_RESULT` y/o `TRAILER_RESULT` en formato
      JSON si todo salió bien.
    - **RESULT_CANCELED** con extras `TRUCK_ERROR` / `TRAILER_ERROR` si alguno
-     de los vehículos no se encontró, no hay red, etc.
+      de los vehículos no se encontró, no hay red, etc.
+
+---
+
+## Demo
+
+<video src="videos/precheck%20externo.mp4" controls width="100%"></video>
+
+*Video de la app disparando `ExternalPrecheckActivity` y mostrando la respuesta
+JSON del truck y del trailer.*
+
+> Si el video no se reproduce en el visor de GitHub, descargalo directamente
+> desde [`videos/precheck externo.mp4`](videos/precheck%20externo.mp4).
 
 ---
 
@@ -201,6 +213,8 @@ VerificationRfidDemo/
 │   └── libs.versions.toml
 ├── gradle.properties
 ├── settings.gradle.kts
+├── videos/
+│   └── precheck externo.mp4   # Demo del flujo de verificación
 └── README.md
 ```
 
