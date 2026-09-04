@@ -55,6 +55,45 @@ JSON del truck y del trailer.*
 
 ---
 
+## Descarga · APK release
+
+Para probar la app sin compilar desde el código, descargar el APK firmado de
+release:
+
+[**⬇ Descargar `app-release.apk`**](https://github.com/LeandroLCD/VerificationRfidDemo/raw/master/app/release/app-release.apk)
+
+| Campo | Valor |
+| --- | --- |
+| `applicationId` | `com.verification.demo` |
+| `versionCode` | `1` |
+| `versionName` | `1.0` |
+| Tamaño | ~13 MB |
+| Ruta en el repo | `app/release/app-release.apk` |
+
+### Instalación en el dispositivo
+
+1. Descargar el APK al teléfono (o transferirlo vía `adb` / USB).
+2. Habilitar **Instalar apps de orígenes desconocidos** para el navegador o el
+   explorador de archivos (si Android lo solicita).
+3. Abrir el `.apk` y pulsar **Instalar**.
+4. Asegurarse de tener HiveTire instalado y con sesión iniciada antes de
+   lanzar la verificación.
+
+Alternativa desde una terminal con `adb`:
+
+```bash
+adb install app-release.apk
+# o para reinstalar sobre una versión existente:
+adb install -r app-release.apk
+```
+
+> **Nota:** si el link anterior devuelve 404, el binario todavía no fue pusheado
+> a `master`. En ese caso, clonar el repo y generar el APK localmente con
+> `./gradlew :app:assembleRelease`; el artefacto queda en
+> `app/release/app-release.apk`.
+
+---
+
 ## 3. Uso de `ExternalPrecheckActivity`
 
 ### 3.1 Intent a enviar
