@@ -79,20 +79,6 @@ release:
 4. Asegurarse de tener HiveTire instalado y con sesión iniciada antes de
    lanzar la verificación.
 
-Alternativa desde una terminal con `adb`:
-
-```bash
-adb install app-release.apk
-# o para reinstalar sobre una versión existente:
-adb install -r app-release.apk
-```
-
-> **Nota:** si el link anterior devuelve 404, el binario todavía no fue pusheado
-> a `master`. En ese caso, clonar el repo y generar el APK localmente con
-> `./gradlew :app:assembleRelease`; el artefacto queda en
-> `app/release/app-release.apk`.
-
----
 
 ## 3. Uso de `ExternalPrecheckActivity`
 
