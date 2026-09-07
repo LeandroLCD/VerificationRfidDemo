@@ -243,15 +243,3 @@ VerificationRfidDemo/
 ```
 
 ---
-
-## 6. Pruebas sugeridas con vehículos de ejemplo
-
-| Tipo de búsqueda | TRUCK | TRAILER (opcional) |
-| --- | --- | --- |
-| `ID (pk)` | `103` | `309` |
-| `Identificación` | `JH3333` | `BDDW73` |
-| `Licencia / patente` | `JH-3333` | `BDDW-73` |
-
-Cualquiera de las tres filas anteriores debe abrir la misma inspección y
-devolver el JSON del truck (y del trailer, si se proporcionó) con sus
-respectivos `tires_assigned`.
