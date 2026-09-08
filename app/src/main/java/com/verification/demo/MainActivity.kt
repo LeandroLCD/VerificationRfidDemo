@@ -38,11 +38,14 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -269,7 +272,8 @@ private fun DemoScreen() {
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
                                 Row(
-                                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                                    verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     IconButton(onClick = {
                                         result.value = false
@@ -294,7 +298,6 @@ private fun DemoScreen() {
                                 )
                             }
                             HorizontalDivider()
-
                             val result = lastResult
                             if (result == null) {
                                 Text(
@@ -302,75 +305,65 @@ private fun DemoScreen() {
                                     style = MaterialTheme.typography.bodyMedium
                                 )
                             } else {
-                                result.truck?.let {
-                                    val json = remember {
-                                        JsonParser.Builder().build().parse(it)
-                                    }
-                                    Log.i("TruckTrailer truck",it)
-                                    Log.i("TruckTrailer truck",json.toString())
-                                    ResultRow(label = "TRUCK", value = truckValue)
-                                    JsonViewerAdapter(
-                                        jsonElement = json,
-                                        keyColor = JsonViewerColor(
-                                            color = Color.Black,
-                                            darkModeColor = Color.White
-                                        ),
-                                        splitterColor = JsonViewerColor(
-                                            color = Color.Black,
-                                            darkModeColor = Color.White
+                                val hasTruck = result.truck != null || result.truckError != null
+                                val hasTrailer = result.trailer != null || result.trailerError != null
+                                val initialTab = if (hasTruck) 0 else if (hasTrailer) 1 else 0
+                                var selectedTab by rememberSaveable { mutableIntStateOf(initialTab) }
+
+                                if (hasTruck || hasTrailer) {
+                                    PrimaryTabRow(selectedTabIndex = selectedTab,
+                                        containerColor = MaterialTheme.colorScheme.surface) {
+                                        Tab(
+                                            selected = selectedTab == 0,
+                                            onClick = { selectedTab = 0 },
+                                            text = {
+                                                Text(
+                                                    text = buildTabTitle("Truck", truckValue),
+                                                    maxLines = 1,
+                                                    overflow = TextOverflow.Ellipsis
+                                                )
+                                            },
+                                            enabled = hasTruck
                                         )
-                                    )
-                                }
-                                result.trailer?.let {
-                                    Log.i("TruckTrailer truck",it)
-                                    val json = remember {
-                                        JsonParser.Builder().build().parse(it)
-                                    }
-                                    Log.i("TruckTrailer truck",json.toString())
-                                    ResultRow(label = "TRAILER", value = truckValue)
-                                    JsonViewerAdapter(
-                                        jsonElement = json,
-                                        keyColor = JsonViewerColor(
-                                            color = Color.Black,
-                                            darkModeColor = Color.White
-                                        ),
-                                        splitterColor = JsonViewerColor(
-                                            color = Color.Black,
-                                            darkModeColor = Color.White
+                                        Tab(
+                                            selected = selectedTab == 1,
+                                            onClick = { selectedTab = 1 },
+                                            text = {
+                                                Text(
+                                                    text = buildTabTitle("Trailer", trailerValue),
+                                                    maxLines = 1,
+                                                    overflow = TextOverflow.Ellipsis
+                                                )
+                                            },
+                                            enabled = hasTrailer
                                         )
-                                    )
+                                    }
                                 }
-                                result.truckError?.let { error->
-                                    Column {
+
+                                when {
+                                    !hasTruck && !hasTrailer -> {
                                         Text(
-                                            text = stringResource(R.string.mensaje_de_error, "TRUCK"),
-                                            color = MaterialTheme.colorScheme.error,
+                                            text = stringResource(R.string.empty_result),
                                             style = MaterialTheme.typography.bodyMedium
                                         )
-                                        Text(
-                                            text = error,
-                                            color = MaterialTheme.colorScheme.error,
-                                            style = MaterialTheme.typography.bodySmall
+                                    }
+                                    selectedTab == 0 -> {
+                                        TruckTrailerContent(
+                                            label = "TRUCK",
+                                            value = truckValue,
+                                            jsonPayload = result.truck,
+                                            error = result.truckError
                                         )
-
+                                    }
+                                    else -> {
+                                        TruckTrailerContent(
+                                            label = "TRAILER",
+                                            value = trailerValue,
+                                            jsonPayload = result.trailer,
+                                            error = result.trailerError
+                                        )
                                     }
                                 }
-                                result.trailerError?.let {error->
-                                    Column {
-                                        Text(
-                                            text = stringResource(R.string.mensaje_de_error, "TRAILER"),
-                                            color = MaterialTheme.colorScheme.error,
-                                            style = MaterialTheme.typography.bodyMedium
-                                        )
-                                        Text(
-                                            text = error,
-                                            color = MaterialTheme.colorScheme.error,
-                                            style = MaterialTheme.typography.bodySmall
-                                        )
-
-                                    }
-                                }
-
                             }
                         }}
                 }
@@ -379,6 +372,59 @@ private fun DemoScreen() {
         }
     }
 }
+
+@Composable
+private fun TruckTrailerContent(
+    label: String,
+    value: String,
+    jsonPayload: String?,
+    error: String?
+) {
+    when {
+        jsonPayload != null -> {
+            val json = remember(jsonPayload) {
+                JsonParser.Builder().build().parse(jsonPayload)
+            }
+            Log.i("TruckTrailer $label", jsonPayload)
+            Log.i("TruckTrailer $label", json.toString())
+            ResultRow(label = label, value = value)
+            JsonViewerAdapter(
+                jsonElement = json,
+                keyColor = JsonViewerColor(
+                    color = Color.Black,
+                    darkModeColor = Color.White
+                ),
+                splitterColor = JsonViewerColor(
+                    color = Color.Black,
+                    darkModeColor = Color.White
+                )
+            )
+        }
+        error != null -> {
+            Column {
+                Text(
+                    text = stringResource(R.string.mensaje_de_error, label),
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                Text(
+                    text = error,
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
+        }
+        else -> {
+            Text(
+                text = stringResource(R.string.sin_datos),
+                style = MaterialTheme.typography.bodyMedium
+            )
+        }
+    }
+}
+
+private fun buildTabTitle(prefix: String, value: String): String =
+    if (value.isBlank()) prefix else "$prefix · $value"
 
 @Composable
 private fun ResultRow(label: String, value: Any?) {

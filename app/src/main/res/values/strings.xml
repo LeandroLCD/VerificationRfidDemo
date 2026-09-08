@@ -13,4 +13,5 @@
     <string name="hint_precheck_date_time">Date time (ms)</string>
     <string name="hint_precheck_sync">Sincronizado</string>
     <string name="mensaje_de_error">Mensaje de error %1$s</string>
+    <string name="sin_datos">Sin datos</string>
 </resources>
