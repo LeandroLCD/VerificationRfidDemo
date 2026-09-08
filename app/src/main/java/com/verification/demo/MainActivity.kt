@@ -17,10 +17,8 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -40,7 +38,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -387,7 +384,6 @@ private fun TruckTrailerContent(
             }
             Log.i("TruckTrailer $label", jsonPayload)
             Log.i("TruckTrailer $label", json.toString())
-            ResultRow(label = label, value = value)
             JsonViewerAdapter(
                 jsonElement = json,
                 keyColor = JsonViewerColor(
@@ -425,28 +421,6 @@ private fun TruckTrailerContent(
 
 private fun buildTabTitle(prefix: String, value: String): String =
     if (value.isBlank()) prefix else "$prefix · $value"
-
-@Composable
-private fun ResultRow(label: String, value: Any?) {
-    Surface(
-        modifier = Modifier.fillMaxWidth(),
-        color = MaterialTheme.colorScheme.surfaceVariant,
-        shape = RoundedCornerShape(8.dp)
-    ) {
-        Row(modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)) {
-            Text(
-                text = "$label:",
-                style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.Medium
-            )
-            Spacer(modifier = Modifier.height(2.dp))
-            Text(
-                text = value?.toString().takeUnless { it.isNullOrBlank() } ?: "—",
-                style = MaterialTheme.typography.bodyMedium
-            )
-        }
-    }
-}
 
 private data class PrecheckResult(
     val success: Boolean,
